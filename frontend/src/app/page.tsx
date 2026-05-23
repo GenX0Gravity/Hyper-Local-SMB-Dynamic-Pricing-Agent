@@ -11,7 +11,7 @@ export default function Home() {
   useEffect(() => {
     if (!loading) {
       if (token) {
-        router.replace("/dashboard")
+        router.replace("/overview")
       } else {
         router.replace("/login")
       }

@@ -11,7 +11,7 @@ from sqlmodel import Session, select, func
 
 from backend.models.product import Product
 from backend.models.sales_history import SalesHistory
-from backend.services.event_service import event_service
+from backend.services.event_intelligence.service import event_intelligence_service
 from backend.services.footfall_service import footfall_service
 from backend.services.news_service import news_service
 from backend.services.weather_service import weather_service
@@ -48,8 +48,15 @@ async def fetch_news(city: str = "local") -> dict[str, Any]:
 
 async def fetch_events(latitude: float, longitude: float) -> dict[str, Any]:
     try:
-        events = await event_service.get_upcoming_events(latitude, longitude)
-        return {"ok": True, "data": events}
+        report = await event_intelligence_service.get_intelligence(
+            latitude, longitude, use_cache=True
+        )
+        return {
+            "ok": True,
+            "data": event_intelligence_service.to_legacy_event_list(report),
+            "aggregate_impact_score": report.aggregate_impact_score,
+            "category_summary": [s.model_dump() for s in report.category_summary],
+        }
     except Exception as exc:
         logger.exception("fetch_events failed")
         return {"ok": False, "error": str(exc)}

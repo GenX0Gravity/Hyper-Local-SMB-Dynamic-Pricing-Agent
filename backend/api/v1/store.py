@@ -17,6 +17,7 @@ class TenantUpdate(BaseModel):
     timezone: Optional[str] = None
     whatsapp_phone: Optional[str] = None
     whatsapp_enabled: Optional[bool] = None
+    whatsapp_auto_approve: Optional[bool] = None
     currency: Optional[str] = None
 
 class TenantResponse(BaseModel):
@@ -28,6 +29,7 @@ class TenantResponse(BaseModel):
     timezone: str
     whatsapp_phone: Optional[str]
     whatsapp_enabled: bool
+    whatsapp_auto_approve: bool = False
     currency: str
 
 # --- Endpoints ---

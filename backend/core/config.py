@@ -73,7 +73,30 @@ class Settings(BaseSettings):
     WEATHER_HIGH_WIND_MS: float = 12.0
     PREDICTHQ_API_KEY: str = ""
     NEWS_API_KEY: str = ""
+    SERPAPI_KEY: str = ""  # Optional — live Google Trends via SerpAPI
     GOOGLE_MAPS_API_KEY: str = ""
+
+    # Event intelligence
+    EVENT_CACHE_TTL_INTELLIGENCE: int = 600   # 10 min — full report per tenant
+    EVENT_DEFAULT_RADIUS_KM: float = 2.0
+    EVENT_MAX_PER_SOURCE: int = 10
+    EVENT_ATTENDANCE_CAP: int = 100_000
+    EVENT_TRENDS_GEO: str = "IN"              # Google Trends region (IN, US, etc.)
+    EVENT_IPL_DEMAND_BOOST_PCT: float = 20.0
+    EVENT_FOOTBALL_DEMAND_BOOST_PCT: float = 18.0
+    EVENT_PUJA_DEMAND_BOOST_PCT: float = 22.0
+
+    # Dynamic pricing engine
+    PRICING_MIN_MARGIN_PCT: float = 15.0       # Never price below this margin %
+    PRICING_MAX_DISCOUNT_PCT: float = 30.0     # Maximum allowed discount
+    PRICING_MAX_INCREASE_PCT: float = 25.0     # Maximum price surge %
+    PRICING_ADJUSTMENT_SCALE: float = 1.0      # Sensitivity multiplier
+    PRICING_INVENTORY_BASELINE_UNITS: int = 100
+    PRICING_RECOMMENDATION_TTL_HOURS: int = 12
+    PRICING_WEIGHT_DEMAND: float = 0.35
+    PRICING_WEIGHT_EVENT: float = 0.25
+    PRICING_WEIGHT_WEATHER: float = 0.20
+    PRICING_WEIGHT_INVENTORY: float = 0.20
 
     # LangGraph / LLM (optional — agent falls back to rule engine)
     OPENAI_API_KEY: str = ""
@@ -92,5 +115,8 @@ class Settings(BaseSettings):
     TWILIO_AUTH_TOKEN: str = ""
     TWILIO_WHATSAPP_FROM: str = "whatsapp:+14155238886"  # Twilio Sandbox number by default
     TWILIO_ENABLED: bool = False
+    TWILIO_WEBHOOK_BASE_URL: str = ""  # Public URL for signature validation (e.g. ngrok)
+    WHATSAPP_SESSION_TTL_SECONDS: int = 86400  # 24h pending approval session
+    WHATSAPP_DAILY_SUMMARY_HOUR_UTC: int = 8  # Celery beat — daily summary hour
 
 settings = Settings()

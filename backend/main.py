@@ -4,7 +4,8 @@ from fastapi.middleware.cors import CORSMiddleware
 from sqlmodel import Session, select
 from backend.core.config import settings
 from backend.core.database import init_db, engine
-from backend.api.v1 import auth, store, products, rules, recommendations, signals, analytics, forecast, weather
+from backend.api.v1 import auth, store, products, rules, recommendations, signals, analytics, forecast, weather, events, pricing, whatsapp
+from backend.api.v1 import orchestrator
 
 # Configure logging
 logging.basicConfig(level=logging.INFO)
@@ -34,6 +35,10 @@ app.include_router(signals.router, prefix=f"{settings.API_V1_STR}/signals", tags
 app.include_router(analytics.router, prefix=f"{settings.API_V1_STR}/analytics", tags=["analytics"])
 app.include_router(forecast.router, prefix=f"{settings.API_V1_STR}/forecast", tags=["demand forecasting"])
 app.include_router(weather.router, prefix=f"{settings.API_V1_STR}/weather", tags=["weather intelligence"])
+app.include_router(events.router, prefix=f"{settings.API_V1_STR}/events", tags=["event intelligence"])
+app.include_router(pricing.router, prefix=f"{settings.API_V1_STR}/pricing", tags=["dynamic pricing"])
+app.include_router(whatsapp.router, prefix=f"{settings.API_V1_STR}/whatsapp", tags=["whatsapp agent"])
+app.include_router(orchestrator.router, prefix=f"{settings.API_V1_STR}/orchestrator", tags=["orchestrator"])
 
 @app.get("/")
 def read_root():

@@ -21,7 +21,8 @@ def init_db():
     from backend.models.recommendation import Recommendation, RecommendationAudit
     from backend.models.sales_history import SalesHistory
     from backend.models.forecast_model import ForecastModelRun
-    
+    from backend.models.analytics_snapshot import AnalyticsSnapshot
+
     SQLModel.metadata.create_all(engine)
 
 def get_session():

@@ -79,6 +79,40 @@ services:
       - redis
       - backend
 
+  langgraph_agent:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: pricepulse_langgraph
+    restart: always
+    command: uvicorn backend.langgraph_agent.app:app --host 0.0.0.0 --port 8100
+    environment:
+      - POSTGRES_SERVER=db
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+      - POSTGRES_DB=pricepulse
+      - REDIS_HOST=redis
+      - OPENAI_API_KEY=${OPENAI_API_KEY}
+    ports:
+      - "8100:8100"
+    depends_on:
+      - db
+      - redis
+      - backend
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: pricepulse_frontend
+    restart: always
+    environment:
+      - NEXT_PUBLIC_API_BASE_URL=http://localhost:8000
+    ports:
+      - "3000:3000"
+    depends_on:
+      - backend
+
 volumes:
   postgres_data:
   redis_data:

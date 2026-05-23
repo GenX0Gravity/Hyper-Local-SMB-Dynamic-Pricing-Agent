@@ -111,7 +111,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           localStorage.setItem("pricepulse_user", JSON.stringify(profile))
         }
         
-        router.push("/dashboard")
+        router.push("/overview")
         return true
       }
       return false
@@ -165,7 +165,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           localStorage.setItem("pricepulse_user", JSON.stringify(profile))
         }
 
-        router.push("/dashboard")
+        router.push("/overview")
         return true
       }
       return false

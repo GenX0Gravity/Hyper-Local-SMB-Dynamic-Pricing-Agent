@@ -11,7 +11,7 @@ from sqlmodel import Session
 
 from backend.agent.state import PricingRecommendation, RecommendationType
 from backend.models.recommendation import Recommendation
-from backend.services.whatsapp_service import whatsapp_service
+from backend.services.whatsapp_agent.twilio_client import twilio_client
 
 logger = logging.getLogger(__name__)
 
@@ -89,5 +89,5 @@ async def send_owner_notification(
         lines.append(f"   {rec.description}")
 
     body = "\n".join(lines)
-    ok = await whatsapp_service.send_whatsapp_message(phone, body)
-    return {"ok": ok, "body": body}
+    result = await twilio_client.send_message(phone, body)
+    return {"ok": result.get("ok"), "body": body}

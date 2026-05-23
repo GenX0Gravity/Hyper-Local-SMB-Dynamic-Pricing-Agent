@@ -7,8 +7,8 @@ import LayoutShell from "@/components/layout-shell"
 const inter = Inter({ subsets: ["latin"] })
 
 export const metadata: Metadata = {
-  title: "PricePulse AI - SMB Dynamic Pricing Agent",
-  description: "Optimize store prices in real-time based on local weather, foot traffic, and event demand signals.",
+  title: "PricePulse AI — Dynamic Pricing SaaS",
+  description: "Modern SaaS dashboard for demand forecasting, weather & event intelligence, and AI pricing recommendations.",
 }
 
 export default function RootLayout({
@@ -17,8 +17,8 @@ export default function RootLayout({
   children: React.ReactNode
 }) {
   return (
-    <html lang="en">
-      <body className={inter.className}>
+    <html lang="en" className="dark">
+      <body className={`${inter.className} antialiased`}>
         <AuthProvider>
           <LayoutShell>
             {children}

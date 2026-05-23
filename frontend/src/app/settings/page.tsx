@@ -8,16 +8,14 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Select } from "@/components/ui/select"
 import { 
-  Settings, 
   MapPin, 
   MessageSquare, 
   Check, 
   Loader2, 
   AlertCircle,
   Database,
-  Smartphone,
-  Share2
 } from "lucide-react"
+import { PageHeader } from "@/components/dashboard/page-header"
 
 export default function SettingsPage() {
   const { refreshUser } = useAuth()
@@ -34,6 +32,7 @@ export default function SettingsPage() {
   const [timezone, setTimezone] = React.useState("UTC")
   const [phone, setPhone] = React.useState("")
   const [whatsappEnabled, setWhatsappEnabled] = React.useState(false)
+  const [whatsappAutoApprove, setWhatsappAutoApprove] = React.useState(false)
   const [currency, setCurrency] = React.useState("USD")
 
   // Simulated POS states
@@ -55,6 +54,7 @@ export default function SettingsPage() {
           setTimezone(store.timezone)
           setPhone(store.whatsapp_phone || "")
           setWhatsappEnabled(store.whatsapp_enabled)
+          setWhatsappAutoApprove(store.whatsapp_auto_approve ?? false)
           setCurrency(store.currency)
         }
       } catch (err) {
@@ -79,6 +79,7 @@ export default function SettingsPage() {
       timezone,
       whatsapp_phone: phone || null,
       whatsapp_enabled: whatsappEnabled,
+      whatsapp_auto_approve: whatsappAutoApprove,
       currency
     }
 
@@ -103,6 +104,12 @@ export default function SettingsPage() {
 
   return (
     <div className="space-y-6 max-w-4xl">
+      <PageHeader
+        title="Settings"
+        description="Store location, notifications, and integrations."
+        icon={MessageSquare}
+      />
+
       {success && (
         <div className="flex items-center space-x-2 text-xs font-semibold text-emerald-400 bg-emerald-950/20 border border-emerald-900/50 p-4 rounded-xl">
           <Check className="h-4 w-4" />
@@ -198,10 +205,29 @@ export default function SettingsPage() {
                   />
                   <div className="space-y-0.5 cursor-pointer" onClick={() => setWhatsappEnabled(!whatsappEnabled)}>
                     <label htmlFor="whatsappEnabled" className="text-xs font-semibold text-white block cursor-pointer">
-                      Enable Twilio Dispatch Gateway
+                      Enable WhatsApp notifications
                     </label>
                     <span className="text-[10px] text-slate-500 font-medium block">
-                      Enqueues celery worker alerts for store managers.
+                      Receive pricing alerts and approval prompts via Twilio.
+                    </span>
+                  </div>
+                </div>
+
+                <div className="flex items-center space-x-3 p-3 rounded-lg bg-emerald-950/20 border border-emerald-900/30">
+                  <input
+                    type="checkbox"
+                    id="whatsappAutoApprove"
+                    checked={whatsappAutoApprove}
+                    onChange={(e) => setWhatsappAutoApprove(e.target.checked)}
+                    disabled={!whatsappEnabled}
+                    className="h-4 w-4 rounded border-slate-800 bg-slate-950 text-emerald-500 focus:ring-emerald-500 cursor-pointer disabled:opacity-40"
+                  />
+                  <div className="space-y-0.5">
+                    <label htmlFor="whatsappAutoApprove" className="text-xs font-semibold text-white block">
+                      Auto-approve mode
+                    </label>
+                    <span className="text-[10px] text-slate-500 font-medium block">
+                      Apply recommendations automatically without manual approval.
                     </span>
                   </div>
                 </div>

@@ -8,12 +8,9 @@ from backend.api.deps import get_db, get_current_tenant_id, get_current_user
 from backend.models.user import User
 from backend.models.tenant import Tenant
 from backend.models.product import Product
-from backend.models.signal import DemandSignal
 from backend.models.recommendation import Recommendation, RecommendationAudit
-from backend.services.pricing_engine import PricingEngine
-from backend.services.weather_service import weather_service
-from backend.services.event_service import event_service
-from backend.services.whatsapp_service import whatsapp_service
+from backend.services.dynamic_pricing.service import dynamic_pricing_service
+from backend.services.whatsapp_agent.notifier import RecommendationNotifier
 
 router = APIRouter()
 
@@ -98,47 +95,23 @@ async def evaluate_prices(
     db: Session = Depends(get_db)
 ):
     """
-    Manually triggers the evaluation engine for a tenant.
-    Fetches latest weather and event signals and feeds them into the PricingEngine.
+    Manually triggers the Dynamic Pricing Engine for a tenant.
+    Uses demand, inventory, event, weather scores, and business rules.
     """
     tenant = db.exec(select(Tenant).where(Tenant.id == tenant_id)).first()
     if not tenant:
         raise HTTPException(status_code=404, detail="Tenant store details not found")
-        
-    # 1. Fetch current weather and events
-    weather_info = await weather_service.get_current_weather(tenant.latitude, tenant.longitude)
-    events_info = await event_service.get_upcoming_events(tenant.latitude, tenant.longitude)
-    
-    # 2. Save signals to database
-    db_weather_signal = DemandSignal(
-        tenant_id=tenant_id,
-        signal_type="weather",
-        value=weather_info
-    )
-    db.add(db_weather_signal)
-    
-    db_event_signals = []
-    for ev in events_info:
-        db_ev = DemandSignal(
-            tenant_id=tenant_id,
-            signal_type="event",
-            value=ev
+
+    await dynamic_pricing_service.evaluate_tenant(db, tenant_id, persist=True)
+    recs = db.exec(
+        select(Recommendation).where(
+            Recommendation.tenant_id == tenant_id,
+            Recommendation.status == "pending",
         )
-        db.add(db_ev)
-        db_event_signals.append(db_ev)
-        
-    db.commit()
+    ).all()
     
-    # Gather signals for engine check
-    active_signals = [db_weather_signal] + db_event_signals
-    
-    # 3. Evaluate prices
-    recs = PricingEngine.evaluate_rules(db, tenant_id, active_signals)
-    
-    # 4. Trigger WhatsApp alerts for any new pending recommendations
-    if recs and tenant.whatsapp_enabled and tenant.whatsapp_phone:
-        whatsapp_body = f"PricePulse AI: {len(recs)} new pricing recommendations generated for {tenant.name}. Review them on your dashboard."
-        await whatsapp_service.send_whatsapp_message(tenant.whatsapp_phone, whatsapp_body)
+    if recs and tenant.whatsapp_enabled:
+        await RecommendationNotifier().send_recommendations(db, tenant_id)
         
     # Return evaluated recommendation objects with nested details
     # We trigger the list recommendation mapping

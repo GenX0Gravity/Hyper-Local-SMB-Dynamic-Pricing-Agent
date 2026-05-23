@@ -4,6 +4,7 @@ import * as React from "react"
 import { apiFetch } from "@/lib/api-client"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
+import { PageHeader } from "@/components/dashboard/page-header"
 import { 
   Zap, 
   ArrowUpRight, 
@@ -14,7 +15,8 @@ import {
   HelpCircle,
   Clock,
   CheckCircle2,
-  TrendingDown
+  TrendingDown,
+  RefreshCw,
 } from "lucide-react"
 
 interface ProductSnippet {
@@ -46,6 +48,7 @@ export default function RecommendationsPage() {
   const [activeTab, setActiveTab] = React.useState<"pending" | "history">("pending")
   const [loading, setLoading] = React.useState(true)
   const [message, setMessage] = React.useState<string | null>(null)
+  const [evaluating, setEvaluating] = React.useState(false)
 
   const fetchRecommendations = React.useCallback(async () => {
     setLoading(true)
@@ -97,16 +100,33 @@ export default function RecommendationsPage() {
     }
   }
 
+  const runEvaluate = async () => {
+    setEvaluating(true)
+    const res = await apiFetch("/recommendations/evaluate", { method: "POST" })
+    if (res.ok) {
+      setMessage("Pricing engine evaluated — check pending queue.")
+      fetchRecommendations()
+    }
+    setEvaluating(false)
+  }
+
   return (
     <div className="space-y-6">
-      {/* Subheader and Notification alerts */}
+      <PageHeader
+        title="Pricing Recommendations"
+        description="Review, approve, or reject AI-suggested price changes."
+        icon={Zap}
+        badge="Queue"
+        actions={
+          <Button variant="glow" onClick={runEvaluate} disabled={evaluating}>
+            <RefreshCw className={`mr-2 h-4 w-4 ${evaluating ? "animate-spin" : ""}`} />
+            Run Evaluation
+          </Button>
+        }
+      />
+
       <div className="flex flex-col sm:flex-row justify-between sm:items-center gap-4">
-        <div>
-          <p className="text-sm text-slate-400">Review dynamic pricing adjustments suggested by the local demand monitor.</p>
-        </div>
-        
-        {/* Toggle switch for queue vs history logs */}
-        <div className="flex p-0.5 rounded-lg bg-slate-900 border border-slate-800 self-start">
+        <div className="flex p-0.5 rounded-xl glass-card self-start">
           <button
             onClick={() => setActiveTab("pending")}
             className={`px-4 py-1.5 text-xs font-semibold rounded-md transition-colors cursor-pointer ${

@@ -14,6 +14,7 @@ class Tenant(SQLModel, table=True):
     timezone: str = Field(default="UTC", max_length=50)
     whatsapp_phone: Optional[str] = Field(default=None, max_length=20)
     whatsapp_enabled: bool = Field(default=False)
+    whatsapp_auto_approve: bool = Field(default=False)
     currency: str = Field(default="USD", max_length=3)
     created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
     updated_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))

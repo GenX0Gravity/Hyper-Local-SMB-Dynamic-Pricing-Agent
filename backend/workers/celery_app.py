@@ -27,4 +27,19 @@ celery_app.conf.beat_schedule = {
         "task": "backend.workers.tasks.periodic_forecast_retrain",
         "schedule": crontab(minute=30, hour=3, day_of_week=1),  # Monday 03:30 UTC
     },
+    "whatsapp-daily-summary": {
+        "task": "backend.workers.tasks.send_whatsapp_daily_summaries",
+        "schedule": crontab(
+            minute=0,
+            hour=settings.WHATSAPP_DAILY_SUMMARY_HOUR_UTC,
+        ),
+    },
+    "analytics-weekly-reports": {
+        "task": "backend.workers.tasks.generate_weekly_analytics_reports",
+        "schedule": crontab(minute=15, hour=6, day_of_week=1),
+    },
+    "analytics-monthly-reports": {
+        "task": "backend.workers.tasks.generate_monthly_analytics_reports",
+        "schedule": crontab(minute=30, hour=6, day_of_month=1),
+    },
 }
